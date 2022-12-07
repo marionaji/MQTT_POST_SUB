@@ -1,0 +1,6 @@
+[submodule "nanopb"]
+	path = nanopb
+	url = git@github.com:nanopb/nanopb.git
+[submodule "cs-protobuf"]
+	path = cs-protobuf
+	url = git@github.com:airm-consulting/cs-protobuf.git
