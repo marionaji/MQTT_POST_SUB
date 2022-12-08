@@ -9,5 +9,7 @@ include_directories(${NANOPB_INCLUDE_DIRS})
 
 nanopb_generate_cpp(PROTO_SRC PROTO_HDRS cs-protobuf/mqttpkt.proto)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})  
+set(MQTT_PROG_INCLUDE include include/post)
 
-add_executable(mqtt_prog post.cpp ${PROTO_SRCS} ${PROTO_HDRS})
+add_executable(mqtt_prog src/post.cpp ${PROTO_SRCS} ${PROTO_HDRS})
+target_include_directories(mqtt_prog PRIVATE ${MQTT_PROG_INCLUDE})
