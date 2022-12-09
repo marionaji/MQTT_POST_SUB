@@ -4,3 +4,6 @@
 [submodule "cs-protobuf"]
 	path = cs-protobuf
 	url = git@github.com:airm-consulting/cs-protobuf.git
+[submodule "mosquitto"]
+	path = mosquitto
+	url = git@github.com:eclipse/mosquitto.git
