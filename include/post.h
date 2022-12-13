@@ -10,6 +10,7 @@
 #define TURN_ON_CMD        ((const char*) "turn-on")
 #define DO_SCAN_CMD        ((const char*) "do-scan")
 #define SCAN_SCHEDULE_CMD  ((const char*)  "u-scan")
+#define MAX_CMD_LINE_ARGS  5
 
 typedef struct 
 {
@@ -28,9 +29,7 @@ typedef struct
     char command[strlen(SCAN_SCHEDULE_CMD)+1];
 } scan_schedule_t;
 
-
-
-int constructPacket(const char *cmd_action, const char *cmd_param);
+int verifyCmd(const char *cmd_action, const char *cmd_param);
 
 
 #endif
