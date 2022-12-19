@@ -1,6 +1,7 @@
 #include "../include/post.h"
 #include "../include/mqtt_cli.h"
 #include  <string.h>
+#include <unistd.h>
 using namespace std;
 
 int timeout_param;
@@ -50,12 +51,17 @@ int main(int argc, char **argv)
     //     return 0;
     // }
     
-    
     msq_init();
     create_msq_client();
     configure_callbacks();
     msq_connect();
-       
+    check = msq_loop();
+    if(check != MOSQ_ERR_SUCCESS){
+		msq_cleanup();
+        //mosquitto_destroy(mosq);
+		fprintf(stderr, "Error: %s\n", mosquitto_strerror(check));
+		return 1;
+	}
 
     // do
     // {
@@ -65,14 +71,18 @@ int main(int argc, char **argv)
         
     // } while (check == MOSQ_ERR_SUCCESS);
        
-
-       while (true)
-       {
-         check = msq_loop();
-         fprintf(stderr, "Error: %s\n", strerror(check));
-         std::cout << check << "\n";
-       }
-       
-   
+    // while (true)
+    // {
+    sleep(120);
+        //std::cout << "hahaha" << std::endl;
+    // }
+    //    while (true)
+    //    {
+    //      check = msq_loop();
+    //      fprintf(stderr, "Error: %s\n", strerror(check));
+    //      std::cout << check << "\n";
+    //    }
+    std::cout << "disconnect now" << std::endl;
+    msq_cleanup();
     return 0;
 }
