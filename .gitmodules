@@ -5,3 +5,9 @@
 	path = cs-protobuf
 	url = git@github.com:airm-consulting/cs-protobuf.git
 
+[submodule "curl"]
+	path = curl
+	url = git@github.com:curl/curl.git
+[submodule "jsoncpp"]
+	path = jsoncpp
+	url = git@github.com:open-source-parsers/jsoncpp.git

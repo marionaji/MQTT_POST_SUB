@@ -1,135 +1,122 @@
+
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
-#include <pthread.h>
 #include "../include/mqtt_cli.h"
 
 bool is_client_connected = false;
-struct mosquitto *mosq;
-int rc;
+CURL *curl;
+std:: string http_reply;
 
-void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
+
+CURL *curlInit()
 {
-	printf("on_connect: %s\n", mosquitto_connack_string(reason_code));
-	if(reason_code != 0)
+    curl_global_init(CURL_GLOBAL_ALL);
+    return  curl = curl_easy_init();
+}
+
+size_t write_data(void* contents, size_t size, size_t nmemb, void *s)
+{
+    ((std::string*)s)->append((char*)contents, size * nmemb);
+    return size * nmemb;
+}
+
+CURLcode connectServer()
+{   
+    long http_response_code;    
+    curl_easy_setopt(curl, CURLOPT_URL, "https://node02.myqtthub.com/login");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, "{\"clientId\" : \"super_dude\", \"userName\" : \"123\", \"password\" : \"123\", \"cleanSession\" : false}");
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_COOKIEJAR, "cookie_store.txt");
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "");
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, &http_reply);
+
+    CURLcode status = curl_easy_perform(curl);
+    std::cout << http_response_code << std::endl;
+
+    return  status;
+}
+
+const char* extractTokenId()
+{
+    std::string token_id;
+    Json::Value root;   
+    Json::Reader reader;
+    bool parsingSuccessful = reader.parse( http_reply.c_str(), root );     //parse process
+    if ( !parsingSuccessful )
     {
-        is_client_connected = false;
-		mosquitto_disconnect(mosq);
-	}
-    else
-    {
-        is_client_connected = true;
-        publish_data();
+        std::cout  << "Failed to parse"<< reader.getFormattedErrorMessages();
+        return NULL;
     }
+    token_id = root.get("tokenId", "A Default Value if not exists" ).asString();
+
+    return token_id.c_str();
 }
 
-/* Callback called when the client knows to the best of its abilities that a
- * PUBLISH has been successfully sent. For QoS 0 this means the message has
- * been completely written to the operating system. For QoS 1 this means we
- * have received a PUBACK from the broker. For QoS 2 this means we have
- * received a PUBCOMP from the broker. */
-void on_publish(struct mosquitto *mosq, void *obj, int mid)
+void curlCleanUp()
 {
-	printf("Message with mid %d has been published.\n", mid);
+    curl_easy_cleanup(curl);
+    curl_global_cleanup();
 }
 
-/* This function pretends to read some data from a sensor and publish it.*/
-void publish_data()
+
+CURLcode publishMsg(uint64_t *msg, const char* topic, const char* tokenId)
 {
-	char *payload = "HELLO!";
-	/* Publish the message
-	 * mosq - our client instance
-	 * *mid = NULL - we don't want to know what the message id for this message is
-	 * topic = "example/temperature" - the topic on which this message will be published
-	 * payloadlen = strlen(payload) - the length of our payload in bytes
-	 * payload - the actual payload
-	 * qos = 2 - publish with QoS 2 for this example
-	 * retain = false - do not use the retained message feature for this message
-	 */
-    std::cout << " publishing message..." << "\n";
-	rc = mosquitto_publish(mosq, NULL, "wer", strlen(payload), payload, 2, false);
-	if(rc != MOSQ_ERR_SUCCESS)
-    {
-		fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
-	}
+    char post_msg[140];
+    long http_response_code;
+    snprintf(post_msg,sizeof(post_msg),"{\"topic\" : \"%s\", \"qos\" : 2, \"payload\" : \"%s\", \"retain\" : false, \"dup\" : false, \"tokenId\" : \"%s\"}",topic,"hell",tokenId);
+    std::cout << post_msg << std::endl;
+    curl_easy_setopt(curl, CURLOPT_URL, "https://node02.myqtthub.com/publish");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_msg);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "cookie_store.txt");
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+    CURLcode status = curl_easy_perform(curl);
+    std::cout << http_response_code << std::endl;
+    
+    return  status;
 }
 
-/* Required before calling other mosquitto functions */
-int msq_init()
+CURLcode disconnectServer(const char* tokenId)
 {
-    return mosquitto_lib_init();
+    char post_msg[53];
+    long http_response_code;
+    snprintf(post_msg,sizeof(post_msg),"{\"tokenId\" : \"%s\"}",tokenId);
+    std::cout << post_msg << std::endl;
+    curl_easy_setopt(curl, CURLOPT_URL, "https://node02.myqtthub.com/logout");
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, post_msg);
+    curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0);
+    curl_easy_setopt(curl, CURLOPT_COOKIEFILE, "cookie_store.txt");
+    // char cookie_msg[47];
+    // snprintf(cookie_msg,sizeof(cookie_msg),"tokenId:\"%s\"",tokenId);
+    //std::cout << cookie_msg << std::endl;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_response_code);
+    //curl_easy_setopt(curl, CURLOPT_COOKIE, cookie_msg);
+    CURLcode status = curl_easy_perform(curl);
+    std::cout << http_response_code << std::endl;
+
+    return status;
 }
 
-/* Create a new client instance.
-    * id = NULL -> ask the broker to generate a client id for us
-    * clean session = true -> the broker should remove old sessions when we connect
-    * obj = NULL -> we aren't passing any of our private data for callbacks
-    */
 
-int create_msq_client()
+
+void resetCurl()
 {
-    mosq = mosquitto_new("round_1",false,NULL);
-    if(mosq == NULL)
-    {
-        fprintf(stderr, "Error: Out of memory.\n");
-        return 1;
-    }
-    return 0;
+   curl_easy_reset(curl);
 }
 
-/* Configure callbacks. This should be done before connecting ideally. */
-
-void configure_callbacks()
+CURLcode connectServer2()
 {
-    mosquitto_connect_callback_set(mosq, on_connect);
-    mosquitto_publish_callback_set(mosq, on_publish);
+    // long http_response_code;    
+    // curl_easy_setopt(curl, CURLOPT_URL, "http://www.google.com");
+    // CURLcode status = curl_easy_perform(curl);
+    // std::cout << http_response_code << std::endl;
+
+    //return  res;
 }
-
-int msq_connect()
-{
-    rc = mosquitto_username_pw_set(mosq,"123456","123456");
-    if(rc != MOSQ_ERR_SUCCESS)
-    {
-        mosquitto_destroy(mosq);
-        fprintf(stderr, "Error: %s\n", mosquitto_strerror(rc));
-        std::cout << " im here 1" << "\n";
-        return 1;
-    }
-    rc = mosquitto_tls_set(mosq,"myqtt.pem",NULL,NULL,NULL,NULL);
-    if(rc != MOSQ_ERR_SUCCESS)
-    {
-        mosquitto_destroy(mosq);
-        fprintf(stderr, "Error: %s\n", mosquitto_strerror(rc));
-        std::cout << " im here 2" << "\n";
-        return 1;
-    }
-
-    rc = mosquitto_connect(mosq, "node02.myqtthub.com",8883, 120);
-    if(rc != MOSQ_ERR_SUCCESS)
-    {
-        mosquitto_destroy(mosq);
-        fprintf(stderr, "Error: %s\n", mosquitto_strerror(rc));
-        std::cout << " im here 3" << "\n";
-        return 1;
-    }
-
-    /* Run the network loop in a background thread, this call returns quickly. */
-    return 0;
-}
-
-int msq_loop()
-{
-   
-   return mosquitto_loop(mosq,10000,1);
-
-}
-
-void msq_cleanup()
-{
-    mosquitto_lib_cleanup();
-}
-
 
 	

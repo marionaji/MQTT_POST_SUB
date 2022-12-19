@@ -1,16 +1,21 @@
     #ifndef _MQTT_CLI_H
     #define _MQTT_CLI_H
-
-    #include <mosquitto.h>
     
-    void on_connect(struct mosquitto *mosq, void *obj, int reason_code);
-    void on_publish(struct mosquitto *mosq, void *obj, int mid);
-    void publish_data();
-    int msq_init();
-    int create_msq_client();
-    void configure_callbacks();
-    int msq_connect();
-    int msq_loop();
-    void msq_cleanup();
+    #include <curl/curl.h>
+    #include <memory>
+    #include  <string.h>
+    #include "../include/post.h"
+    #include "../include/mqtt_cli.h"
+    #include "json/json.h"
+
+    CURL *curlInit();
+    size_t write_data(void* contents, size_t size, size_t nmemb, void *s);
+    CURLcode connectServer();
+    CURLcode connectServer2();
+    CURLcode disconnectServer(const char* tokenId);
+    CURLcode publishMsg(uint64_t *msg, const char* topic, const char* tokenId);
+    const char* extractTokenId();
+    void resetCurl();
+    void curlCleanUp();
 
     #endif

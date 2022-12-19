@@ -29,7 +29,7 @@ typedef struct
     char command[strlen(SCAN_SCHEDULE_CMD)+1];
 } scan_schedule_t;
 
-int verifyCmd(const char *cmd_action, const char *cmd_param);
+bool verifyCmd(const char *cmd_action, const char *cmd_param);
 
 
 #endif
