@@ -57,7 +57,7 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 	/* This blindly prints the payload, but the payload can be anything so take care. */
 	printf("%s %d %s\n", msg->topic, msg->qos, (char *)msg->payload);
     std::ostringstream command;
-    command << "/usr/local/bin/aws s3 cp --profile " << "ehsan.tahmasebian" << " " << std::string(msg->payload) << " " << "/home/don/test_aws_download";
+    command << "/usr/local/bin/aws s3 cp --profile " << "ehsan.tahmasebian" << " " << std::string(((char *) msg->payload)) << " " << "/home/don/test_aws_download";
     std::cout<<"executing "<<command.str()<<std::endl;
     std::cout<<exec(command.str().c_str());
 
@@ -95,8 +95,9 @@ void subscribe_topic()
 /* This function pretends to read some data from a sensor and publish it.*/
 void publish_data()
 {
-	char *payload = "HELLO!";
-	/* Publish the message
+	// char *payload = "HELLO!";
+	char *payload = "s3://cs-main/jetson-test/95105c07-68dd-4c3f-b642-742fa9eee797/firmware.hex";
+    /* Publish the message
 	 * mosq - our client instance
 	 * *mid = NULL - we don't want to know what the message id for this message is
 	 * topic = "example/temperature" - the topic on which this message will be published
