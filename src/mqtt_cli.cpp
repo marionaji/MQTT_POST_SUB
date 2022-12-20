@@ -57,7 +57,7 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 	/* This blindly prints the payload, but the payload can be anything so take care. */
 	printf("%s %d %s\n", msg->topic, msg->qos, (char *)msg->payload);
     std::ostringstream command;
-    command << "/usr/local/bin/aws s3 cp --profile " << "ehsan.tahmasebian" << " " << std::string(((char *) msg->payload)) << " " << "/home/don/test_aws_download";
+    command << "/usr/local/bin/aws s3 cp"  << " " << strip_tail_endline(std::string(((char *) msg->payload))) << " " << "/home/don/test_aws_download/firmware.hex" << " --profile " << "ehsan.tahmasebian";
     std::cout<<"executing "<<command.str()<<std::endl;
     std::cout<<exec(command.str().c_str());
 
@@ -84,7 +84,7 @@ void subscribe_topic()
     /* Making subscriptions in the on_connect() callback means that if the
     * connection drops and is automatically resumed by the client, then the
     * subscriptions will be recreated when the client reconnects. */
-	rc = mosquitto_subscribe(mosq, NULL, "wer", 2);
+	rc = mosquitto_subscribe(mosq, NULL, "jetson-topic/10", 2);
 	if(rc != MOSQ_ERR_SUCCESS){
 		fprintf(stderr, "Error subscribing: %s\n", mosquitto_strerror(rc));
 		/* We might as well disconnect if we were unable to subscribe */
