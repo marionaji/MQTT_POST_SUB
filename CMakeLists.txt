@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.25.1)
+cmake_minimum_required(VERSION 3.23.1)
 project(MQTT_PROJ LANGUAGES CXX C)
 
 set(CMAKE_CXX_STANDARD 17)
