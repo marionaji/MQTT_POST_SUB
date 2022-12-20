@@ -38,7 +38,7 @@ void on_publish(struct mosquitto *mosq, void *obj, int mid)
 /* This function pretends to read some data from a sensor and publish it.*/
 void publish_data()
 {
-	char *payload = "HELLO!";
+	char *payload = "hey buddy";
 	/* Publish the message
 	 * mosq - our client instance
 	 * *mid = NULL - we don't want to know what the message id for this message is
@@ -97,7 +97,7 @@ int msq_connect()
         std::cout << " im here 1" << "\n";
         return 1;
     }
-    rc = mosquitto_tls_set(mosq,"myqtt.pem",NULL,NULL,NULL,NULL);
+    rc = mosquitto_tls_set(mosq,"mqttmy.pem",NULL,NULL,NULL,NULL);
     if(rc != MOSQ_ERR_SUCCESS)
     {
         mosquitto_destroy(mosq);
@@ -121,9 +121,7 @@ int msq_connect()
 
 int msq_loop()
 {
-   
    return mosquitto_loop(mosq,10000,1);
-
 }
 
 void msq_cleanup()

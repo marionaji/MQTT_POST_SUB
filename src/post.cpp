@@ -66,12 +66,12 @@ int main(int argc, char **argv)
     // } while (check == MOSQ_ERR_SUCCESS);
        
 
-       while (true)
-       {
-         check = msq_loop();
-         fprintf(stderr, "Error: %s\n", strerror(check));
-         std::cout << check << "\n";
-       }
+    while (true)
+    {
+        check = msq_loop();
+        fprintf(stderr, "Error: %s\n", strerror(check));
+        std::cout << check << "\n";
+    }
        
    
     return 0;
