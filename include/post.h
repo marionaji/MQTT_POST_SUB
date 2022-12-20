@@ -3,9 +3,7 @@
 
 #include <string.h>
 #include <iostream>
-#include <pb_encode.h>
-#include <pb_decode.h>
-#include "mqttpkt.pb.h"
+#include <stdio.h>
 
 #define TURN_ON_CMD        ((const char*) "turn-on")
 #define DO_SCAN_CMD        ((const char*) "do-scan")
@@ -31,5 +29,20 @@ typedef struct
 
 int verifyCmd(const char *cmd_action, const char *cmd_param);
 
+
+typedef union
+{
+    do_scan_t do_scan;
+    turn_on_t turn_on;
+    scan_schedule_t scan_schedule;
+} mqtt_pkt;
+
+typedef enum
+{
+    SCAN,
+    TURN_ON,
+    SCHEDULE,
+    INVALID
+} cmd_code_t;
 
 #endif

@@ -5,10 +5,19 @@
 #include <unistd.h>
 #include <pthread.h>
 #include "../include/mqtt_cli.h"
+#include "../include/post.h"
 
 bool is_client_connected = false;
 struct mosquitto *mosq;
 int rc;
+const char *pubTopic;
+uint8_t *payload;
+
+void mqtt_client_init(const char *pub_topic, uint8_t *pay_load)
+{
+    pubTopic = pub_topic;
+    payload = pay_load;
+}
 
 void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
 {
@@ -33,12 +42,13 @@ void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
 void on_publish(struct mosquitto *mosq, void *obj, int mid)
 {
 	printf("Message with mid %d has been published.\n", mid);
+    exit(0);
 }
 
 /* This function pretends to read some data from a sensor and publish it.*/
 void publish_data()
 {
-	char *payload = "hey buddy";
+	//const char *payload = "hey buddy";
 	/* Publish the message
 	 * mosq - our client instance
 	 * *mid = NULL - we don't want to know what the message id for this message is
@@ -49,7 +59,7 @@ void publish_data()
 	 * retain = false - do not use the retained message feature for this message
 	 */
     std::cout << " publishing message..." << "\n";
-	rc = mosquitto_publish(mosq, NULL, "wer", strlen(payload), payload, 2, false);
+	rc = mosquitto_publish(mosq, NULL,pubTopic, sizeof(payload)-1,payload, 2, false);
 	if(rc != MOSQ_ERR_SUCCESS)
     {
 		fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
@@ -68,9 +78,9 @@ int msq_init()
     * obj = NULL -> we aren't passing any of our private data for callbacks
     */
 
-int create_msq_client()
+int create_msq_client(const char*clientId)
 {
-    mosq = mosquitto_new("round_1",false,NULL);
+    mosq = mosquitto_new(clientId,false,NULL);
     if(mosq == NULL)
     {
         fprintf(stderr, "Error: Out of memory.\n");
