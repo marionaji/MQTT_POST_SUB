@@ -13,6 +13,6 @@ include_directories(${CMAKE_CURRENT_BINARY_DIR})
 set(MQTT_PROG_SRC src/mqtt_cli.cpp)
 set(MQTT_PROG_INCLUDE include)
 
-add_executable(mqtt_prog src/post.cpp ${MQTT_PROG_SRC} ${PROTO_SRCS} ${PROTO_HDRS} src/util.cpp)
+add_executable(mqtt_prog src/post.cpp ${MQTT_PROG_SRC} ${PROTO_SRC} ${PROTO_HDRS} src/util.cpp)
 target_link_libraries(mqtt_prog mosquitto)
 target_include_directories(mqtt_prog PRIVATE ${MQTT_PROG_INCLUDE})
