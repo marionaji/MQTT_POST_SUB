@@ -3,7 +3,7 @@
 
     #include <mosquitto.h>
     
-    void mqtt_client_init(const char *pub_topic, uint8_t *pay_load);
+    void mqtt_client_init(const char *pub_topic, uint8_t *pay_load, int packet_len);
     void on_connect(struct mosquitto *mosq, void *obj, int reason_code);
     void on_publish(struct mosquitto *mosq, void *obj, int mid);
     void publish_data();

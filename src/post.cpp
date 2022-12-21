@@ -8,6 +8,7 @@ int flag;
 
 static mqtt_pkt packet;
 uint8_t buf[256];
+int pkt_len;
 
 
 int verifyCmd(const char *cmd_action, const char *cmd_param)
@@ -33,7 +34,6 @@ int verifyCmd(const char *cmd_action, const char *cmd_param)
     else if (strcmp(cmd_action,SCAN_SCHEDULE_CMD) == 0)
     {
         cmd_code = SCHEDULE;
-        timeout_param = atoi(cmd_param);
         memcpy(packet.scan_schedule.command,cmd_action,strlen(SCAN_SCHEDULE_CMD)+1);
         success = true;
     }
@@ -41,7 +41,7 @@ int verifyCmd(const char *cmd_action, const char *cmd_param)
     {
         printf("You entered an invalid command !\n");
     }
-    constructPacket(buf,packet,cmd_code);
+    pkt_len = constructPacket(buf,packet,cmd_code);
     return success;
 }
 
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
     
     if (verifyCmd(argv[3],argv[4]))
     {
-        mqtt_client_init(argv[2], buf);
+        mqtt_client_init(argv[2], buf, pkt_len);
         msq_init();
         create_msq_client(argv[1]);
         configure_callbacks();

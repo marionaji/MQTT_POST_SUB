@@ -12,11 +12,14 @@ struct mosquitto *mosq;
 int rc;
 const char *pubTopic;
 uint8_t *payload;
+int mqtt_payload_len;
 
-void mqtt_client_init(const char *pub_topic, uint8_t *pay_load)
+void mqtt_client_init(const char *pub_topic, uint8_t *pay_load, int packet_len)
 {
     pubTopic = pub_topic;
     payload = pay_load;
+    mqtt_payload_len = packet_len;
+    std::cout << mqtt_payload_len << std::endl;
 }
 
 void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
@@ -59,7 +62,7 @@ void publish_data()
 	 * retain = false - do not use the retained message feature for this message
 	 */
     std::cout << " publishing message..." << "\n";
-	rc = mosquitto_publish(mosq, NULL,pubTopic, sizeof(payload)-1,payload, 2, false);
+	rc = mosquitto_publish(mosq, NULL,pubTopic,mqtt_payload_len,payload, 2, false);
 	if(rc != MOSQ_ERR_SUCCESS)
     {
 		fprintf(stderr, "Error publishing: %s\n", mosquitto_strerror(rc));
