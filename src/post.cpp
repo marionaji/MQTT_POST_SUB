@@ -1,6 +1,7 @@
 #include "../include/post.h"
 #include "../include/mqtt_cli.h"
 #include  <string.h>
+#include <ctime>
 #include <unistd.h>
 using namespace std;
 
@@ -71,11 +72,12 @@ int main(int argc, char **argv)
         
     // } while (check == MOSQ_ERR_SUCCESS);
        
-    // while (true)
-    // {
-    sleep(120);
+    clock_t start_time = clock();
+    while ((gotOne == false) && (clock() - start_time < (CLOCKS_PER_SEC * 180)))
+    {
         //std::cout << "hahaha" << std::endl;
-    // }
+        sleep(1);
+    }
     //    while (true)
     //    {
     //      check = msq_loop();

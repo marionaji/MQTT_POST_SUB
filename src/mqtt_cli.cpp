@@ -11,6 +11,7 @@
 bool is_client_connected = false;
 struct mosquitto *mosq;
 int rc;
+bool gotOne = false;
 
 void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
 {
@@ -68,6 +69,8 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
     flash_command << "/usr/bin/avrdude -p atmega2560 -c wiring -P /dev/ttyACM0 -b 115200 -D -U flash:w:"<<firmware.string()<<":i";
     std::cout<<"executing "<<flash_command.str()<<std::endl;
     std::cout<<exec(flash_command.str().c_str());
+
+    gotOne = true;
 }
 
 
