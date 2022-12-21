@@ -11,6 +11,7 @@
 bool is_client_connected = false;
 struct mosquitto *mosq;
 int rc;
+bool gotOne = false;
 
 void on_connect(struct mosquitto *mosq, void *obj, int reason_code)
 {
@@ -56,16 +57,20 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 {
 	/* This blindly prints the payload, but the payload can be anything so take care. */
 	printf("%s %d %s\n", msg->topic, msg->qos, (char *)msg->payload);
+    std::filesystem::path pwd = std::filesystem::current_path();
+    std::filesystem::path firmware = pwd/"firmware.hex";
     std::ostringstream command;
-    command << "/usr/local/bin/aws s3 cp"  << " " << strip_tail_endline(std::string(((char *) msg->payload))) << " " << "/home/don/test_aws_download/firmware.hex" << " --profile " << "ehsan.tahmasebian";
+    command << "/usr/local/bin/aws s3 cp"  << " " << strip_tail_endline(std::string(((char *) msg->payload))) << " " << firmware.string() << " --profile " << "ehsan.tahmasebian";
     std::cout<<"executing "<<command.str()<<std::endl;
     std::cout<<exec(command.str().c_str());
 
     std::cout<<"update firmware"<<std::endl;
     std::ostringstream flash_command;
-    flash_command << "/usr/bin/avrdude -p atmega2560 -c wiring -P /dev/ttyACM0 -b 115200 -D -U flash:w:/home/don/test_aws_download/firmware.hex:i";
+    flash_command << "/usr/bin/avrdude -p atmega2560 -c wiring -P /dev/ttyACM0 -b 115200 -D -U flash:w:"<<firmware.string()<<":i";
     std::cout<<"executing "<<flash_command.str()<<std::endl;
     std::cout<<exec(flash_command.str().c_str());
+
+    gotOne = true;
 }
 
 
