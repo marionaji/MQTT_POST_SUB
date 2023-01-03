@@ -7,7 +7,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/nanopb/extra)
 find_package(Nanopb REQUIRED)
 include_directories(${NANOPB_INCLUDE_DIRS} )
 
-nanopb_generate_cpp(PROTO_SRC PROTO_HDRS RELPATH cs-protobuf cs-protobuf/mqttpkt.proto)
+nanopb_generate_cpp(PROTO_SRC PROTO_HDRS RELPATH cs-protobuf cs-protobuf/arduino_mqtt_pkt.proto)
 include_directories(${CMAKE_CURRENT_BINARY_DIR})  
 
 set(MQTT_PROG_SRC src/mqtt_cli.cpp src/mqtt_packet.cpp)
