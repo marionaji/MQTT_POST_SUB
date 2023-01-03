@@ -7,6 +7,7 @@
 #include <filesystem>
 #include "util.h"
 #include "../include/mqtt_cli.h"
+#include "pb_parse.h"
 
 bool is_client_connected = false;
 struct mosquitto *mosq;
@@ -56,23 +57,10 @@ void on_subscribe(struct mosquitto *mosq, void *obj, int mid, int qos_count, con
 void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_message *msg)
 {
 	/* This blindly prints the payload, but the payload can be anything so take care. */
-	printf("%s %d %s\n", msg->topic, msg->qos, (char *)msg->payload);
-    std::filesystem::path pwd = std::filesystem::current_path();
-    std::filesystem::path firmware = pwd/"firmware.hex";
-    std::ostringstream command;
-    command << "/usr/local/bin/aws s3 cp"  << " " << strip_tail_endline(std::string(((char *) msg->payload))) << " " << firmware.string() << " --profile " << "ehsan.tahmasebian";
-    std::cout<<"executing "<<command.str()<<std::endl;
-    std::cout<<exec(command.str().c_str());
-
-    std::cout<<"update firmware"<<std::endl;
-    std::ostringstream flash_command;
-    flash_command << "/usr/bin/avrdude -p atmega2560 -c wiring -P /dev/ttyACM0 -b 115200 -D -U flash:w:"<<firmware.string()<<":i";
-    std::cout<<"executing "<<flash_command.str()<<std::endl;
-    std::cout<<exec(flash_command.str().c_str());
-
+	printf("%s %d\n", msg->topic, msg->qos);
+    jetson_mqttpacket p = decode_stream((uint8_t *) msg->payload, msg->payloadlen);
     gotOne = true;
 }
-
 
 /* Callback called when the client knows to the best of its abilities that a
  * PUBLISH has been successfully sent. For QoS 0 this means the message has
@@ -216,6 +204,7 @@ int msq_loop()
 void msq_cleanup()
 {
     mosquitto_disconnect(mosq);
+    mosquitto_destroy(mosq);
     mosquitto_lib_cleanup();
 }
 
