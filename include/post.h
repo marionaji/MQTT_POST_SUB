@@ -5,7 +5,7 @@
 #include <iostream>
 #include <pb_encode.h>
 #include <pb_decode.h>
-#include "mqttpkt.pb.h"
+#include "arduino_mqtt_pkt.pb.h"
 
 #define TURN_ON_CMD        ((const char*) "turn-on")
 #define DO_SCAN_CMD        ((const char*) "do-scan")
