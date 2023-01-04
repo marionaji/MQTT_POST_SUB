@@ -5,8 +5,7 @@
 #include <pb_encode.h>
 #include "jetson_mqttpkt.pb.h"
 
-#define MAX_PACKET_SIZE 2048
-#define OVERHEAD_SIZE 1024
+#define OVERHEAD_SIZE 1024 //this is very generous
 
 jetson_mqttpacket decode_stream(uint8_t * buffer, int len)
 {
