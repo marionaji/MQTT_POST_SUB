@@ -107,7 +107,7 @@ void configure_callbacks()
 
 int msq_connect()
 {
-    rc = mosquitto_username_pw_set(mosq,"123456","123456");
+    rc = mosquitto_username_pw_set(mosq,"123","321");
     if(rc != MOSQ_ERR_SUCCESS)
     {
         mosquitto_destroy(mosq);
