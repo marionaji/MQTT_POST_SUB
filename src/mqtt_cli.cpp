@@ -51,6 +51,11 @@ void on_publish(struct mosquitto *mosq, void *obj, int mid)
 /* This function pretends to read some data from a sensor and publish it.*/
 void publish_data()
 {
+    for (int i = 0; i < mqtt_payload_len; i++)
+    {
+        std::cout << std::hex << (int)payload[i] << std::dec << std::endl;
+    }
+    
 	//const char *payload = "hey buddy";
 	/* Publish the message
 	 * mosq - our client instance
