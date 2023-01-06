@@ -24,7 +24,7 @@ bool encode_string(pb_ostream_t *ostream, const char * s, int strlen)
 
 bool execScript_callback(pb_istream_t *istream, pb_ostream_t *ostream, const pb_field_t *field)
 {
-    if (istream && field->tag == jetson_mqttpacket_exec_script_tag)
+    if (istream && field->tag == execScript_url_tag)
     {
         std::string s = decode_string(istream);
         if (s.size() == 0)
@@ -37,7 +37,7 @@ bool execScript_callback(pb_istream_t *istream, pb_ostream_t *ostream, const pb_
         
         return true;
     }
-    else if (ostream && field->tag == jetson_mqttpacket_exec_script_tag)
+    else if (ostream && field->tag == execScript_url_tag)
     {
         const char * s = *(const char **)field->pData;
         if (!pb_encode_tag_for_field(ostream, field))
@@ -51,7 +51,7 @@ bool execScript_callback(pb_istream_t *istream, pb_ostream_t *ostream, const pb_
 
 bool firmwareUpdate_callback(pb_istream_t *istream, pb_ostream_t *ostream, const pb_field_t *field)
 {
-    if (istream && field->tag == jetson_mqttpacket_firmware_update_tag)
+    if (istream && field->tag == firmwareUpdate_url_tag)
     {
         // std::vector<uint8_t> rst = decode_string(istream);
         std::string s = decode_string(istream);
@@ -76,7 +76,7 @@ bool firmwareUpdate_callback(pb_istream_t *istream, pb_ostream_t *ostream, const
         
         return true;
     }
-    else if (ostream && field->tag == jetson_mqttpacket_firmware_update_tag)
+    else if (ostream && field->tag == firmwareUpdate_url_tag)
     {
         const char * s = *(const char **)field->pData;
         if (!pb_encode_tag_for_field(ostream, field))
