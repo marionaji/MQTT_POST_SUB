@@ -59,7 +59,7 @@ void on_message(struct mosquitto *mosq, void *obj, const struct mosquitto_messag
 	/* This blindly prints the payload, but the payload can be anything so take care. */
 	printf("%s %d\n", msg->topic, msg->qos);
     jetson_mqttpacket p = decode_stream((uint8_t *) msg->payload, msg->payloadlen);
-    gotOne = true;
+    //gotOne = true;
 }
 
 /* Callback called when the client knows to the best of its abilities that a
